@@ -6,6 +6,7 @@
 #include <ros/console.h>
 #include <gst/gst.h>
 #include <glib.h>
+#include <fastcv.h>
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/CompressedImage.h"
 
@@ -17,6 +18,13 @@ class RbCamera{
 
     ros::NodeHandle n;
     ros::Publisher cam_pub;
+
+    // Gstream
+    GMainLoop *loop;
+    GstElement *pipeline, *source, *framefilter, *sink;
+    GstBus *bus;
+    guint bus_id;
+    gint8 camera_id;
 
 };
 

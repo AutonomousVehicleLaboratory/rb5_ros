@@ -23,7 +23,15 @@ if ( NOT (GST_FOUND))
       message(FATAL_ERROR "Please Install Gstreamer Dev: CMake will Exit")
 endif()
 set(ENV{PKG_CONFIG_PATH})
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+pkg_search_module(GLIB REQUIRED glib-2.0) 
+pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
+pkg_check_modules(GST_APP REQUIRED gstreamer-app-1.0)
+pkg_check_modules(GST_VIDEO REQUIRED gstreamer-video-1.0)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+#find_library( DL_LIBRARY libdl.so  )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -159,9 +167,13 @@ add_executable(${PROJECT_NAME} src/rb_camera_node.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} 
   ${catkin_LIBRARIES}
 )
+
+target_link_libraries(${PROJECT_NAME} ${GST_APP_LIBRARIES} ${GST_VIDEO_LIBRARIES})
+
+target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/libfastcv.a -pthread -ldl) 
 
 #############
 ## Install ##
