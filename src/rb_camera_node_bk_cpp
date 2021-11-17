@@ -17,19 +17,6 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
   if(sample){
     buffer = gst_sample_get_buffer (sample);
     GstCaps *caps = gst_sample_get_caps(sample);
-    GstStructure *caps_structure = gst_caps_get_structure(caps, 0);
-
-    gboolean res;
-    int width, height;
-    const gchar *format;
-    res = gst_structure_get_int (caps_structure, "width", &width);
-    res |= gst_structure_get_int (caps_structure, "height", &height);
-    format = gst_structure_get_string (caps_structure, "format");
-    if (!res) {
-        g_print("no dimensions");
-    }
-
-    g_print("%s", gst_structure_to_string(caps_structure));
 
     if (!gst_buffer_map ((buffer), &map_info, GST_MAP_READ)) {
       gst_buffer_unmap ((buffer), &map_info);
@@ -38,10 +25,8 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
       return GST_FLOW_ERROR;
     }
 
-    g_print("\nsize: %lu\n", map_info.size);
-
-    cv::Mat frame_rgb = cv::Mat::zeros(height, width, CV_8UC3);
-    cv::Mat frame(cv::Size(height, width), CV_8UC4, (char*)map_info.data, cv::Mat::AUTO_STEP);
+    cv::Mat frame_rgb = cv::Mat::zeros(480, 640, CV_8UC3);
+    cv::Mat frame(cv::Size(640, 480), CV_8UC4, (char*)map_info.data, cv::Mat::AUTO_STEP);
     cv::cvtColor(frame, frame_rgb, cv::COLOR_RGBA2BGR);
     std_msgs::Header header;
     header.seq = 0;
@@ -68,24 +53,29 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
 RbCamera::RbCamera(){
 
   gst_init(0, nullptr);
-  camera_id = 1;
+  camera_id = 0;
   //loop = g_main_loop_new(NULL, FALSE);
 
   data.source      = gst_element_factory_make("qtiqmmfsrc", "source");
-  // data.filter = gst_element_factory_make ("videoconvert", "filter");
-  data.filter = gst_element_factory_make("capsfilter", "filter");
+  data.convert = gst_element_factory_make ("videoconvert", "convert");
   data.appsink = gst_element_factory_make ("appsink", "sink");
+  data.videosink = gst_element_factory_make ("autovideosink", "sink");
+  data.filter = gst_element_factory_make("vertigotv", "filter");
+  //data.filter = gst_element_factory_make("capsfilter", "filter");
+  data.tee = gst_element_factory_make ("tee", "tee");
   data.pipeline    = gst_pipeline_new("rb5-camera");
 
-  if (!data.pipeline || !data.filter || !data.source || !data.appsink) {
+  if (!data.pipeline || !data.convert || !data.source || !data.appsink ||
+      !data.filter || !data.videosink) {
     g_printerr ("Not all elements could be created.\n");
     return;
   }
 
 
   // Build pipeline
-  gst_bin_add_many (GST_BIN (data.pipeline), data.source, data.filter, data.appsink, nullptr);
-  if (gst_element_link (data.source, data.filter) != TRUE ||
+  gst_bin_add_many (GST_BIN (data.pipeline), data.source, data.convert, data.filter, data.appsink, nullptr);
+  if (gst_element_link (data.source, data.convert) != TRUE ||
+      gst_element_link (data.convert, data.filter) != TRUE ||
       gst_element_link (data.filter, data.appsink) != TRUE) {
     g_printerr ("Elements could not be linked.\n");
     gst_object_unref (data.pipeline);
@@ -94,16 +84,16 @@ RbCamera::RbCamera(){
 
 
 
-  if (camera_id == 0) {
-   g_object_set(G_OBJECT(data.filter), "caps",
-                gst_caps_from_string("video/x-raw,format=NV12,framerate=30/1,width=1920,height=1080"), nullptr);
-  }
-  else{
-   g_object_set(G_OBJECT(data.filter), "caps",
-                gst_caps_from_string("video/x-raw,format=NV12,framerate=30/1,width=1280,height=720"), nullptr);
-  }
+  //if (camera_id == 0) {
+  //  g_object_set(G_OBJECT(data.filter), "caps",
+  //               gst_caps_from_string("video/x-raw,format=NV12,framerate=30/1,width=1920,height=1080"), nullptr);
+  //}
+  //else{
+  //  g_object_set(G_OBJECT(data.filter), "caps",
+  //               gst_caps_from_string("video/x-raw,format=NV12,framerate=30/1,width=1280,height=720"), nullptr);
+  //}
 
-  g_object_set (G_OBJECT(data.source), "camera", 0, nullptr);
+  //g_object_set (G_OBJECT(data.source), "camera", 0, nullptr);
   //g_object_set (G_OBJECT(sink), "x", 0, "y", 200, "width", 640, "height", 360, nullptr);
   //bus = gst_pipeline_get_bus(GST_PIPELINE(data.pipeline));
   //
@@ -118,7 +108,7 @@ RbCamera::~RbCamera(){
 
 void RbCamera::init(){
   g_object_set(data.appsink, "emit-signals", TRUE, nullptr);
-  g_object_set(G_OBJECT(data.source), "camera", camera_id, NULL);
+  //g_object_set(G_OBJECT(data.source), "camera", camera_id, NULL);
   //g_object_set(G_OBJECT(data.filter), "caps",
   //             gst_caps_from_string("video/x-raw,format=NV12,framerate=30/1,width=1920,height=1080"), nullptr);
   g_signal_connect(data.appsink, "new-sample", G_CALLBACK(processData), &data);

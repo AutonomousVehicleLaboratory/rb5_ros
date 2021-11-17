@@ -22,8 +22,11 @@ class RbCamera{
     {
       GstElement *pipeline;
       GstElement *source;
+      GstElement *convert;
       GstElement *filter;
+      GstElement *tee;
       GstElement *appsink;
+      GstElement *videosink;
     } CustomData;
 
     void init();
