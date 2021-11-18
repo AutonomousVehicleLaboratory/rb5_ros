@@ -22,7 +22,9 @@ class RbCamera{
     {
       GstElement *pipeline;
       GstElement *source;
-      GstElement *filter;
+      GstElement *convert;
+      GstElement *capsfiltersrc;
+      GstElement *capsfilterapp;
       GstElement *appsink;
     } CustomData;
 
@@ -34,7 +36,6 @@ class RbCamera{
 
     // Gstream
     //GMainLoop *loop;
-    //GstElement *pipeline, *source, *convert, *frame_filter, *tee, *sink, *video_sink;
     GstMessage *msg;
     GstBus *bus;
     GstStateChangeReturn ret;
