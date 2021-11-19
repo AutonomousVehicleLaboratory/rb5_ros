@@ -38,8 +38,6 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
       return GST_FLOW_ERROR;
     }
 
-    g_print("\nsize: %lu\n", map_info.size);
-    g_print("\nmaxsize: %lu\n", map_info.maxsize);
 
     // cv::Mat frame_rgb = cv::Mat::zeros(width, height, CV_8UC3);
     cv::Mat frame_rgb(cv::Size(width, height), CV_8UC3, (char*)map_info.data, cv::Mat::AUTO_STEP);
@@ -53,6 +51,7 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
 
 
     // Publish camera frame and free resources
+    gst_buffer_unmap(buffer, &map_info);
     gst_sample_unref(sample);
     cam_pub.publish(cam_msg);
 
