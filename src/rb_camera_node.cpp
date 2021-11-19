@@ -8,7 +8,7 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
   cv_bridge::CvImage bridge;
 
   GstSample *sample;
-  GstBuffer *app_buffer, *buffer;
+  GstBuffer *buffer;
   GstMapInfo map_info;
 
   // Retrieve buffer
@@ -29,7 +29,7 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
         g_print("no dimensions");
     }
 
-    g_print("%s", gst_structure_to_string(caps_structure));
+    g_print("%s\n", gst_structure_to_string(caps_structure));
 
     if (!gst_buffer_map ((buffer), &map_info, GST_MAP_READ)) {
       gst_buffer_unmap ((buffer), &map_info);
