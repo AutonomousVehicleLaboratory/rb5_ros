@@ -36,18 +36,13 @@ class RbCamera{
     } CustomData;
 
     void init();
-    //static GstFlowReturn processData(GstElement * sink, CustomData * data);
 
-    //ros::NodeHandle n;
-    //ros::Publisher cam_pub;
-
-    // Gstream
-    //GMainLoop *loop;
     GstMessage *msg;
     GstBus *bus;
     GstStateChangeReturn ret;
     guint bus_id;
     
+    // caps parameters for the camera
     int camera_id;
     int width;
     int height;

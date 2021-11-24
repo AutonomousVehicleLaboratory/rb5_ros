@@ -7,6 +7,7 @@ static int _frame_rate;
 
 std::string _input_format;
 std::string _output_format;
+std::string _topic_name;
 
 ros::Publisher cam_pub;
 
@@ -99,7 +100,8 @@ RbCamera::RbCamera(
   
   std::string output_caps = "video/x-raw,format=" + output_format;
 
-  std::cout << output_caps << std::endl;
+  std::cout << "input caps: " << input_caps << std::endl;
+  std::cout << "output caps: " << output_caps << std::endl;
 
   if (camera_id == 0 or _camera_id == 1) {
     data.source        = gst_element_factory_make("qtiqmmfsrc", "source");
@@ -209,8 +211,11 @@ int main(int argc, char *argv[]){
   ROS_INFO("input_format: %s", _input_format.c_str());
   n.param<std::string>("output_format", _output_format, "RGB");
   ROS_INFO("output_format: %s", _output_format.c_str());
+  n.param<std::string>("topic_name", _topic_name, std::string("camera")+std::to_string(_camera_id));
+  ROS_INFO("topic_name: %s", _topic_name.c_str());
 
-  cam_pub = n.advertise<sensor_msgs::Image>("camera", 10);
+  cam_pub = n.advertise<sensor_msgs::Image>(_topic_name.c_str(), 10);
+
   RbCamera cam(
     _camera_id,
     _width,

@@ -1,8 +1,8 @@
 <launch>
-  <arg name="camera_id" default="0" /> <!-- 0 for main camera, 1 for tracking camera and 2 for webcames. -->
+  <arg name="camera_id" default="1" /> <!-- 0 for main camera, 1 for tracking camera and 2 for webcames. -->
   <arg name="frame_rate" default="30" />
-  <arg name="width" default="1920" />
-  <arg name="height" default="1080" />
+  <arg name="width" default="1280" />
+  <arg name="height" default="720" />
   <arg name="input_format" default="NV12" /> <!-- format for the input stream from camera -->
   <arg name="output_format" default="RGB" /> <!-- format for the output stream -->
   <arg name="topic_name_prefix" default="camera" />
