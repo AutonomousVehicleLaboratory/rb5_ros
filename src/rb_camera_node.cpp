@@ -27,16 +27,19 @@ int main(int argc, char *argv[]){
   RbCamera cam;
   cam.init();
 
-  ros::spin();
-  ros::Rate rate(1000.0);
-  while(ros::ok()){
-    if (cam.data.data_ready){
-      publish_images(cam.data.image_queue);
-      cam.data.data_ready = false;
-      rate.sleep();
-    };
-  }
+  ///* here will not be reached as the init will not return from gstramer.
+  // ros::spin();
+  // ros::Rate rate(1000.0);
+  // while(ros::ok()){
+  //   std::cout << "ros ok" << std::endl;
+  //   if (cam.data.data_ready == true){
+  //     std::cout << "data_ready" << std::endl;
+  //     publish_images(cam.data.image_queue);
+  //     cam.data.data_ready = false;
+  //     rate.sleep();
+  //   };
+  // }
   
-  //return 0;
+  // return 0;
 }
 
