@@ -14,7 +14,14 @@
 
 class RbCamera{
   public:
-    RbCamera();
+    RbCamera(
+      int camera_id_,
+      int width_,
+      int height_,
+      int frame_rate_,
+      std::string input_format_,
+      std::string output_format_
+    );
     ~RbCamera();
 
     // data
@@ -41,10 +48,10 @@ class RbCamera{
     GstStateChangeReturn ret;
     guint bus_id;
     
-    uint camera_id;
-    uint width;
-    uint height;
-    uint frame_rate;
+    int camera_id;
+    int width;
+    int height;
+    int frame_rate;
 
     std::string input_format;
     std::string output_format;

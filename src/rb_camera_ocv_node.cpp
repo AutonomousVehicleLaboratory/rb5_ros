@@ -74,11 +74,32 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
 
 }
 
-RbCamera::RbCamera(){
+RbCamera::RbCamera(
+  int camera_id_,
+  int width_,
+  int height_,
+  int frame_rate_,
+  std::string input_format_,
+  std::string output_format_
+){
 
   gst_init(0, nullptr);
-  camera_id = 0;
-  //loop = g_main_loop_new(NULL, FALSE);
+
+  camera_id = camera_id_;
+  width = width_;
+  height = height_;
+  frame_rate = frame_rate_;
+  input_format = input_format_;
+  output_format = output_format_;
+
+  std::string input_caps = "video/x-raw,format=" + input_format + 
+                           ",framerate=" + std::to_string(frame_rate) + "/1" + 
+                           ",width=" + std::to_string(width) + 
+                           ",height=" + std::to_string(height);
+  
+  std::string output_caps = "video/x-raw,format=" + output_format;
+
+  std::cout << output_caps << std::endl;
 
   if (camera_id == 0 or _camera_id == 1) {
     data.source        = gst_element_factory_make("qtiqmmfsrc", "source");
@@ -99,7 +120,6 @@ RbCamera::RbCamera(){
     return;
   }
 
-
   // Build pipeline
   gst_bin_add_many (GST_BIN (data.pipeline), data.source, data.convert, data.appsink, data.capsfiltersrc, data.capsfilterapp, nullptr);
   if (gst_element_link_many (data.source, data.capsfiltersrc, data.convert, data.capsfilterapp, data.appsink, nullptr) != TRUE) {
@@ -108,26 +128,15 @@ RbCamera::RbCamera(){
     return;
   }
 
-
-  g_object_set(G_OBJECT(data.capsfilterapp), "caps",
-		  gst_caps_from_string("video/x-raw,format=RGB"), nullptr);
-
-  if (camera_id == 0) {
-    g_object_set(G_OBJECT(data.capsfiltersrc), "caps",
-                 gst_caps_from_string("video/x-raw,format=NV12,framerate=30/1,width=1920,height=1080"), nullptr);
-  }
-  else if (camera_id == 1){
-    g_object_set(G_OBJECT(data.capsfiltersrc), "caps",
-                 gst_caps_from_string("video/x-raw,format=NV12,framerate=30/1,width=1280,height=720"), nullptr);
-  }
-  else {
-    g_object_set(G_OBJECT(data.capsfiltersrc), "caps",
-                 gst_caps_from_string("video/x-raw,framerate=30/1"), nullptr);
-  }
-
   if (camera_id == 0 or camera_id == 1) {
     g_object_set (G_OBJECT(data.source), "camera", camera_id, nullptr);
   }
+
+  g_object_set(G_OBJECT(data.capsfiltersrc), "caps",
+               gst_caps_from_string(input_caps.c_str()), nullptr);
+  g_object_set(G_OBJECT(data.capsfilterapp), "caps",
+		           gst_caps_from_string(output_caps.c_str()), nullptr);
+
 
 }
 
@@ -202,7 +211,14 @@ int main(int argc, char *argv[]){
   ROS_INFO("output_format: %s", _output_format.c_str());
 
   cam_pub = n.advertise<sensor_msgs::Image>("camera", 10);
-  RbCamera cam;
+  RbCamera cam(
+    _camera_id,
+    _width,
+    _height,
+    _frame_rate,
+    _input_format,
+    _output_format
+  );
   cam.init();
 }
 
