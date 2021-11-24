@@ -46,8 +46,8 @@ class RbCamera{
     uint height;
     uint frame_rate;
 
-    string input_format;
-    string output_format;
+    std::string input_format;
+    std::string output_format;
 
 
     CustomData data;

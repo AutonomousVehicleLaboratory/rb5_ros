@@ -1,12 +1,12 @@
 #include "rb_camera_ocv.h"
 
-static uint _camera_id;
-static uint _width;
-static uint _height;
-static uint _frame_rate;
+static int _camera_id;
+static int _width;
+static int _height;
+static int _frame_rate;
 
-static string _input_format;
-static string _output_format;
+std::string _input_format;
+std::string _output_format;
 
 ros::Publisher cam_pub;
 
@@ -56,7 +56,7 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
     std_msgs::Header header;
     header.seq = 0;
     header.stamp = ros::Time::now();
-    bridge = cv_bridge::CvImag2e(header, sensor_msgs::image_encodings::RGB8, frame_rgb);
+    bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, frame_rgb);
     bridge.toImageMsg(cam_msg);
 
     // Publish camera frame and free resources
@@ -196,10 +196,10 @@ int main(int argc, char *argv[]){
   ROS_INFO("width: %d", _width);
   n.param("height", _height, 1080);
   ROS_INFO("height: %d", _height);
-  n.param("input_format", _input_format, "NV12");
-  ROS_INFO("input_format: %s", _input_format);
-  n.param("output_format", _output_format, "RGB");
-  ROS_INFO("output_format: %s", _output_format);
+  n.param<std::string>("input_format", _input_format, "NV12");
+  ROS_INFO("input_format: %s", _input_format.c_str());
+  n.param<std::string>("output_format", _output_format, "RGB");
+  ROS_INFO("output_format: %s", _output_format.c_str());
 
   cam_pub = n.advertise<sensor_msgs::Image>("camera", 10);
   RbCamera cam;
