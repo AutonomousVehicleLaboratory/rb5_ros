@@ -198,20 +198,21 @@ void RbCamera::init(){
 int main(int argc, char *argv[]){
   ros::init(argc, argv, "rb_camera");
   ros::NodeHandle n;
+  ros::NodeHandle private_nh("~");
 
-  n.param("camera_id", _camera_id, 0);
+  private_nh.param("camera_id", _camera_id, 0);
   ROS_INFO("camera_id: %d", _camera_id);
-  n.param("frame_rate", _frame_rate, 30);
+  private_nh.param("frame_rate", _frame_rate, 30);
   ROS_INFO("frame_rate: %d", _frame_rate);
-  n.param("width", _width, 1920);
+  private_nh.param("width", _width, 1920);
   ROS_INFO("width: %d", _width);
-  n.param("height", _height, 1080);
+  private_nh.param("height", _height, 1080);
   ROS_INFO("height: %d", _height);
-  n.param<std::string>("input_format", _input_format, "NV12");
+  private_nh.param<std::string>("input_format", _input_format, "NV12");
   ROS_INFO("input_format: %s", _input_format.c_str());
-  n.param<std::string>("output_format", _output_format, "RGB");
+  private_nh.param<std::string>("output_format", _output_format, "RGB");
   ROS_INFO("output_format: %s", _output_format.c_str());
-  n.param<std::string>("topic_name", _topic_name, std::string("camera")+std::to_string(_camera_id));
+  private_nh.param<std::string>("topic_name", _topic_name, std::string("camera")+std::to_string(_camera_id));
   ROS_INFO("topic_name: %s", _topic_name.c_str());
 
   cam_pub = n.advertise<sensor_msgs::Image>(_topic_name.c_str(), 10);
