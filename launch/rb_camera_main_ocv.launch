@@ -1,0 +1,17 @@
+<launch>
+  <arg name="camera_id" default="0" /> <!-- 0 for main camera, 1 for tracking camera and 2 for webcames. -->
+  <arg name="frame_rate" default="30" />
+  <arg name="width" default="1920" />
+  <arg name="height" default="1080" />
+  <arg name="input_format" default="NV12" /> <!-- format for the input stream from camera -->
+  <arg name="output_format" default="RGB" /> <!-- format for the output stream -->
+
+  <node pkg="rb5_utils" type="rb5_utils" name="rb5_utils" output="screen">
+    <param name="camera_id" value="$(arg camera_id)" />
+    <param name="frame_rate" value="$(arg frame_rate)" />
+    <param name="width" value="$(arg width)" />
+    <param name="height" value="$(arg height)" />
+    <param name="input_format" value="$(arg input_format)" />
+    <param name="output_format" value="$(arg output_format)" />
+  </node>
+</launch>

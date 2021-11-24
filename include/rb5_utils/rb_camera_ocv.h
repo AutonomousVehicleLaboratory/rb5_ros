@@ -10,6 +10,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/CompressedImage.h"
+#include <string>
 
 class RbCamera{
   public:
@@ -39,7 +40,14 @@ class RbCamera{
     GstBus *bus;
     GstStateChangeReturn ret;
     guint bus_id;
-    gint8 camera_id;
+    
+    uint camera_id;
+    uint width;
+    uint height;
+    uint frame_rate;
+
+    string input_format;
+    string output_format;
 
 
     CustomData data;

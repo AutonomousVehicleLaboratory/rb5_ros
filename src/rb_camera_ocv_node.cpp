@@ -1,8 +1,17 @@
 #include "rb_camera_ocv.h"
 
+static uint _camera_id;
+static uint _width;
+static uint _height;
+static uint _frame_rate;
+
+static string _input_format;
+static string _output_format;
 
 ros::Publisher cam_pub;
 
+
+/* Callback for appsink to parse the video stream and publish images. */
 static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data){
   sensor_msgs::Image cam_msg;
   cv_bridge::CvImage bridge;
@@ -38,17 +47,17 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
       return GST_FLOW_ERROR;
     }
 
-
+    // Parse data from buffer, depending on the format, conversion might be needed.
     // cv::Mat frame_rgb = cv::Mat::zeros(width, height, CV_8UC3);
     cv::Mat frame_rgb(cv::Size(width, height), CV_8UC3, (char*)map_info.data, cv::Mat::AUTO_STEP);
     // cv::cvtColor(frame, frame_rgb, cv::COLOR_RGB2);
+
+    // Prepare ROS message.
     std_msgs::Header header;
     header.seq = 0;
     header.stamp = ros::Time::now();
-    bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, frame_rgb);
+    bridge = cv_bridge::CvImag2e(header, sensor_msgs::image_encodings::RGB8, frame_rgb);
     bridge.toImageMsg(cam_msg);
-    
-
 
     // Publish camera frame and free resources
     gst_buffer_unmap(buffer, &map_info);
@@ -71,7 +80,13 @@ RbCamera::RbCamera(){
   camera_id = 0;
   //loop = g_main_loop_new(NULL, FALSE);
 
-  data.source        = gst_element_factory_make("qtiqmmfsrc", "source");
+  if (camera_id == 0 or _camera_id == 1) {
+    data.source        = gst_element_factory_make("qtiqmmfsrc", "source");
+  }
+  else {
+    data.source        = gst_element_factory_make("autovideosrc", "source");
+  }
+
   data.capsfiltersrc = gst_element_factory_make("capsfilter", "capsfiltersrc");
   data.convert        = gst_element_factory_make ("videoconvert", "convert");
   data.capsfilterapp = gst_element_factory_make("capsfilter", "capsfilterapp");
@@ -101,15 +116,18 @@ RbCamera::RbCamera(){
     g_object_set(G_OBJECT(data.capsfiltersrc), "caps",
                  gst_caps_from_string("video/x-raw,format=NV12,framerate=30/1,width=1920,height=1080"), nullptr);
   }
-  else{
+  else if (camera_id == 1){
     g_object_set(G_OBJECT(data.capsfiltersrc), "caps",
                  gst_caps_from_string("video/x-raw,format=NV12,framerate=30/1,width=1280,height=720"), nullptr);
   }
+  else {
+    g_object_set(G_OBJECT(data.capsfiltersrc), "caps",
+                 gst_caps_from_string("video/x-raw,framerate=30/1"), nullptr);
+  }
 
-  g_object_set (G_OBJECT(data.source), "camera", camera_id, nullptr);
-  //g_object_set (G_OBJECT(sink), "x", 0, "y", 200, "width", 640, "height", 360, nullptr);
-  //bus = gst_pipeline_get_bus(GST_PIPELINE(data.pipeline));
-  //
+  if (camera_id == 0 or camera_id == 1) {
+    g_object_set (G_OBJECT(data.source), "camera", camera_id, nullptr);
+  }
 
 }
 
@@ -169,16 +187,22 @@ void RbCamera::init(){
 int main(int argc, char *argv[]){
   ros::init(argc, argv, "rb_camera");
   ros::NodeHandle n;
+
+  n.param("camera_id", _camera_id, 0);
+  ROS_INFO("camera_id: %d", _camera_id);
+  n.param("frame_rate", _frame_rate, 30);
+  ROS_INFO("frame_rate: %d", _frame_rate);
+  n.param("width", _width, 1920);
+  ROS_INFO("width: %d", _width);
+  n.param("height", _height, 1080);
+  ROS_INFO("height: %d", _height);
+  n.param("input_format", _input_format, "NV12");
+  ROS_INFO("input_format: %s", _input_format);
+  n.param("output_format", _output_format, "RGB");
+  ROS_INFO("output_format: %s", _output_format);
+
   cam_pub = n.advertise<sensor_msgs::Image>("camera", 10);
   RbCamera cam;
   cam.init();
-
-  //ros::spin();
-  //ros::Rate rate(10.0);
-  //while(ros::ok()){
-  //  cam.processData();
-  //  rate.sleep();
-  //}
-  //return 0;
 }
 
