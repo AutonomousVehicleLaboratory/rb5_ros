@@ -7,7 +7,7 @@
   <arg name="output_format" default="RGB" /> <!-- format for the output stream -->
   <arg name="topic_name_prefix" default="camera" />
 
-  <node pkg="rb5_utils" type="rb5_utils" name="rb5_utils" output="screen">
+  <node pkg="rb5_vision" type="rb5_vision" name="rb5_vision" output="screen">
     <param name="camera_id" value="$(arg camera_id)" />
     <param name="frame_rate" value="$(arg frame_rate)" />
     <param name="width" value="$(arg width)" />

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(rb5_utils)
+project(rb5_vision)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -138,13 +138,13 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/rb5_utils
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/rb5_vision
   ${GST_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/rb5_utils.cpp
+#   src/${PROJECT_NAME}/rb5_vision.cpp
 # )
 
 ## Add cmake target dependencies of the library

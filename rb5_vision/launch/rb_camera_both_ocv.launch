@@ -15,7 +15,7 @@
   
   <arg name="topic_name_prefix" default="camera" />
 
-  <node pkg="rb5_utils" type="rb5_utils" name="rb5_utils_$(arg camera_id0)" output="screen">
+  <node pkg="rb5_vision" type="rb5_vision" name="rb5_vision_$(arg camera_id0)" output="screen">
     <param name="camera_id" value="$(arg camera_id0)" />
     <param name="frame_rate" value="$(arg frame_rate0)" />
     <param name="width" value="$(arg width0)" />
@@ -25,7 +25,7 @@
     <param name="topic_name" value="$(arg topic_name_prefix)_$(arg camera_id0)" />
   </node>
 
-  <node pkg="rb5_utils" type="rb5_utils" name="rb5_utils_$(arg camera_id1)" output="screen">
+  <node pkg="rb5_vision" type="rb5_vision" name="rb5_vision_$(arg camera_id1)" output="screen">
     <param name="camera_id" value="$(arg camera_id1)" />
     <param name="frame_rate" value="$(arg frame_rate1)" />
     <param name="width" value="$(arg width1)" />
