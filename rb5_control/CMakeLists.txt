@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.0.2)
-project(rb5_utils)
+cmake_minimum_required(VERSION 2.8.3)
+project(rb5_control)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -9,30 +9,12 @@ add_compile_options(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  serial
   rospy
   std_msgs
   sensor_msgs
-  cv_bridge
 )
 
-find_package(PkgConfig REQUIRED)
-if ( NOT (PKGCONFIG_FOUND))
-      message(FATAL_ERROR "Please Install PPkgConfig: CMake will Exit")
-endif()
-pkg_check_modules(GST REQUIRED gstreamer-1.0>=1.8)
-if ( NOT (GST_FOUND))
-      message(FATAL_ERROR "Please Install Gstreamer Dev: CMake will Exit")
-endif()
-set(ENV{PKG_CONFIG_PATH})
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-pkg_search_module(GLIB REQUIRED glib-2.0) 
-pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
-pkg_check_modules(GST_APP REQUIRED gstreamer-app-1.0)
-pkg_check_modules(GST_VIDEO REQUIRED gstreamer-video-1.0)
-
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-#find_library( DL_LIBRARY libdl.so  )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -124,8 +106,13 @@ find_package(Threads REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-  LIBRARIES gstreamer 
-  CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs cv_bridge
+#  LIBRARIES rb5_control
+  CATKIN_DEPENDS 
+  roscpp 
+  serial
+  rospy 
+  std_msgs
+  sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -137,14 +124,13 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 # include
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/rb5_control
   ${catkin_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/rb5_utils
-  ${GST_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/rb5_utils.cpp
+#   src/${PROJECT_NAME}/rb5_control.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -155,7 +141,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME} src/rb_camera_node.cpp)
+add_executable(${PROJECT_NAME}_node src/rb5_control_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -168,13 +154,9 @@ add_executable(${PROJECT_NAME} src/rb_camera_node.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME} 
-  ${catkin_LIBRARIES}
+target_link_libraries(${PROJECT_NAME}_node
+   ${catkin_LIBRARIES}
 )
-
-target_link_libraries(${PROJECT_NAME} ${GST_APP_LIBRARIES} ${GST_VIDEO_LIBRARIES})
-
-target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/libfastcv.a -pthread -ldl) 
 
 #############
 ## Install ##
@@ -185,7 +167,7 @@ target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/libfastcv.a -pthread -
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# catkin_install_python(PROGRAMS
+# install(PROGRAMS
 #   scripts/my_python_script
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
@@ -198,11 +180,11 @@ target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/libfastcv.a -pthread -
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
+install(TARGETS ${PROJECT_NAME}_node
+    #ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    #LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
@@ -223,7 +205,7 @@ target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/libfastcv.a -pthread -
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_rb5_utils.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_rb5_control.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
