@@ -6,6 +6,7 @@
   <arg name="input_format" default="YUY2" /> <!-- format for the input stream from camera -->
   <arg name="output_format" default="RGB" /> <!-- format for the output stream -->
   <arg name="topic_name_prefix" default="camera" />
+  <arg name="image_compress" default="true" /> 
 
   <node pkg="rb5_vision" type="rb5_vision" name="rb5_vision" output="screen">
     <param name="camera_id" value="$(arg camera_id)" />
@@ -15,5 +16,6 @@
     <param name="input_format" value="$(arg input_format)" />
     <param name="output_format" value="$(arg output_format)" />
     <param name="topic_name" value="$(arg topic_name_prefix)_$(arg camera_id)" />
+    <param name="image_compress" value="$(arg image_compress)" />
   </node>
 </launch>

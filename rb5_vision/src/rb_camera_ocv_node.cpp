@@ -1,21 +1,21 @@
 #include "rb_camera_ocv.h"
+#include <sys/time.h>
 
 static int _camera_id;
 static int _width;
 static int _height;
 static int _frame_rate;
+static bool _image_compress;
 
 std::string _input_format;
 std::string _output_format;
 std::string _topic_name;
 
-ros::Publisher cam_pub;
+ros::Publisher cam_pub, cam_compress_pub;
 
 
 /* Callback for appsink to parse the video stream and publish images. */
 static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data){
-  sensor_msgs::Image cam_msg;
-  cv_bridge::CvImage bridge;
 
   GstSample *sample;
   GstBuffer *buffer;
@@ -39,7 +39,7 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
         g_print("no dimensions");
     }
 
-    g_print("%s\n", gst_structure_to_string(caps_structure));
+    // g_print("%s\n", gst_structure_to_string(caps_structure));
 
     if (!gst_buffer_map ((buffer), &map_info, GST_MAP_READ)) {
       gst_buffer_unmap ((buffer), &map_info);
@@ -48,31 +48,50 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
       return GST_FLOW_ERROR;
     }
 
+    timeval current_time;
+    gettimeofday(&current_time, 0);
+    std::cout << current_time.tv_sec << "." << current_time.tv_usec << std::endl;
+
     // Parse data from buffer, depending on the format, conversion might be needed.
     // cv::Mat frame_rgb = cv::Mat::zeros(width, height, CV_8UC3);
     cv::Mat frame_rgb(cv::Size(width, height), CV_8UC3, (char*)map_info.data, cv::Mat::AUTO_STEP);
-    // cv::cvtColor(frame, frame_rgb, cv::COLOR_RGB2);
+    // cv::cvtColor(frame_rgb, frame, cv::COLOR_RGB2);
 
     // Prepare ROS message.
+    cv_bridge::CvImage bridge;
+
+    // Publish camera image
+    sensor_msgs::Image cam_msg;
     std_msgs::Header header;
     header.seq = 0;
     header.stamp = ros::Time::now();
     bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, frame_rgb);
     bridge.toImageMsg(cam_msg);
+    cam_pub.publish(cam_msg);
+    
+    // Publish camera frame 
+    if (_image_compress) {
+      sensor_msgs::CompressedImage cam_compress_msg;
+      cam_compress_msg.header.stamp = header.stamp;
+      std::vector<int> p;
+      p.push_back(CV_IMWRITE_JPEG_QUALITY);
+      p.push_back(90);
+      
+      cv::Mat frame_bgr = cv::Mat::zeros(width, height, CV_8UC3);
+      cv::cvtColor(frame_rgb, frame_bgr, cv::COLOR_RGB2BGR);
+      cv::imencode(".jpg", frame_bgr, cam_compress_msg.data, p);
 
-    // Publish camera frame and free resources
+      cam_compress_pub.publish(cam_compress_msg);
+    }
+
+    // free resources
     gst_buffer_unmap(buffer, &map_info);
     gst_sample_unref(sample);
-    cam_pub.publish(cam_msg);
-
     return GST_FLOW_OK;
   }
 
-  //fcvOperationMode mode = FASTCV_OP_PERFORMANCE;
-  //fcvSetOperationMode(mode);
+
   return GST_FLOW_ERROR;
-
-
 }
 
 RbCamera::RbCamera(
@@ -214,8 +233,13 @@ int main(int argc, char *argv[]){
   ROS_INFO("output_format: %s", _output_format.c_str());
   private_nh.param<std::string>("topic_name", _topic_name, std::string("camera")+std::to_string(_camera_id));
   ROS_INFO("topic_name: %s", _topic_name.c_str());
+  private_nh.param("image_compress", _image_compress, true);
+  ROS_INFO("image_compress: %d", _image_compress);
 
   cam_pub = n.advertise<sensor_msgs::Image>(_topic_name.c_str(), 10);
+  if (_image_compress) {
+    cam_compress_pub = n.advertise<sensor_msgs::CompressedImage>((_topic_name+std::string("/compressed")).c_str(), 10);
+  }
 
   RbCamera cam(
     _camera_id,

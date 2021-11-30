@@ -5,6 +5,7 @@
   <arg name="height0" default="1080" />
   <arg name="input_format0" default="NV12" /> <!-- format for the input stream from camera -->
   <arg name="output_format0" default="RGB" /> <!-- format for the output stream -->
+  <arg name="image_compress0" default="true" /> 
   
   <arg name="camera_id1" default="1" /> <!-- 0 for main camera, 1 for tracking camera and 2 for webcames. -->
   <arg name="frame_rate1" default="30" />
@@ -12,6 +13,7 @@
   <arg name="height1" default="720" />
   <arg name="input_format1" default="NV12" /> <!-- format for the input stream from camera -->
   <arg name="output_format1" default="RGB" /> <!-- format for the output stream -->
+  <arg name="image_compress1" default="true" /> 
   
   <arg name="topic_name_prefix" default="camera" />
 
@@ -23,6 +25,7 @@
     <param name="input_format" value="$(arg input_format0)" />
     <param name="output_format" value="$(arg output_format0)" />
     <param name="topic_name" value="$(arg topic_name_prefix)_$(arg camera_id0)" />
+    <param name="image_compress" value="$(arg image_compress0)" />
   </node>
 
   <node pkg="rb5_vision" type="rb5_vision" name="rb5_vision_$(arg camera_id1)" output="screen">
@@ -33,6 +36,7 @@
     <param name="input_format" value="$(arg input_format1)" />
     <param name="output_format" value="$(arg output_format1)" />
     <param name="topic_name" value="$(arg topic_name_prefix)_$(arg camera_id1)" />
+    <param name="image_compress" value="$(arg image_compress1)" />
   </node>
 
 </launch>
