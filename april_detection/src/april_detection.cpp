@@ -43,7 +43,6 @@ cv::Mat AprilDetection::processImage(cv::Mat image){
   zarray_t * detections = apriltag_detector_detect(a_detector, &im);
 
   apriltag_detection_t *det;
-  ROS_INFO("Processing AprilTag");
   for (int i=0; i<zarray_size(detections); i++){
     zarray_get(detections, i, &det);
     // TODO: estimate pose 
