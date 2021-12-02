@@ -40,12 +40,27 @@ cv::Mat AprilDetection::processImage(cv::Mat image){
                     .buf    = image_gray.data 
   };
 
+
   zarray_t * detections = apriltag_detector_detect(a_detector, &im);
 
   apriltag_detection_t *det;
+  apriltag_detection_info_t tag_info; 
+
+  tag_info.tagsize = 0.159;
+  tag_info.fx = 663.57507; 
+  tag_info.fy = 694.47272;
+  tag_info.cx = 956.22994;
+  tag_info.cy = 539.54574;
+
   for (int i=0; i<zarray_size(detections); i++){
+    std::cout << "Tag detected: " << std::endl; 
     zarray_get(detections, i, &det);
-    // TODO: estimate pose 
+    tag_info.det = det;
+    apriltag_pose_t pose;
+
+    std::cout << "Finding Pose: " << std::endl; 
+    // estimate pose 
+    estimate_tag_pose(&tag_info, &pose);
   }
   
   return image;
