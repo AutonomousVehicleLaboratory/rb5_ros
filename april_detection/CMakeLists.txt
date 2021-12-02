@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(april_detection)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -14,6 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   cv_bridge
 )
+
+find_package(apriltag REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -156,6 +158,7 @@ add_executable(${PROJECT_NAME}_node src/april_detection_node.cpp src/april_detec
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
+  apriltag::apriltag
 )
 
 #############
