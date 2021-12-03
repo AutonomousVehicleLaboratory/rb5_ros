@@ -53,14 +53,24 @@ cv::Mat AprilDetection::processImage(cv::Mat image){
   tag_info.cy = 539.54574;
 
   for (int i=0; i<zarray_size(detections); i++){
-    std::cout << "Tag detected: " << std::endl; 
     zarray_get(detections, i, &det);
+    std::cout << "Tag detected: " << det->id << std::endl; 
     tag_info.det = det;
     apriltag_pose_t pose;
 
-    std::cout << "Finding Pose: " << std::endl; 
     // estimate pose 
     estimate_tag_pose(&tag_info, &pose);
+    std::cout << "R: "; 
+    for (int i=0; i<9; i++){
+      std::cout << pose.R->data[i] << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "t: " << std::endl; 
+    for (int i=0; i<3; i++){
+	    std::cout << pose.t->data[i];
+    }
+    std::cout << std::endl;
+
   }
   
   return image;
