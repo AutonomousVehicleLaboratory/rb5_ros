@@ -7,6 +7,8 @@
 #include "april_detection.h"
 #include "sensor_msgs/Image.h"
 #include "geometry_msgs/PoseStamped.h"
+#include <tf/transform_broadcaster.h>
+#include <tf/transform_datatypes.h>
 
 ros::Publisher pose_pub;
 ros::Subscriber image_sub;
@@ -31,15 +33,42 @@ cv::Mat rectify(const cv::Mat image){
 
   return image_rect;
 }
+
+tf::Transform retrieveTransform(vector<apriltag_pose_t> poses){
+  tf::Quaternion q;
+  tf::Matrix3x3 so3_mat;
+  tf::Transform tf;
+
+  for (int i=0; i<poses.size(); i++){
+
+    // translation
+    tf.setOrigin(tf::Vector3(poses[i].t->data[0],
+                             poses[i].t->data[1],
+                             poses[i].t->data[2]));
+    // orientation - SO(3)
+    so3_mat.setValue(poses[i].R->data[0], poses[i].R->data[1], poses[i].R->data[2],
+                     poses[i].R->data[3], poses[i].R->data[4], poses[i].R->data[5], 
+                     poses[i].R->data[6], poses[i].R->data[7], poses[i].R->data[8]);
+
+    double roll, pitch, yaw; 
+
+    // orientation - q
+    so3_mat.setRPY(roll, pitch, yaw);
+    cout << "Roll: " << roll << " Pitch: " << pitch << " Yaw: " << yaw << endl;
+                  
+  }
+  
+
+  return tf;
+}
+
+
 void imageCallback(const sensor_msgs::Image::ConstPtr& msg){
   ROS_INFO("image received");
   cv_bridge::CvImagePtr img_cv = cv_bridge::toCvCopy(msg);
 
-  // rectify
-    
-
-  // run detection
-  det.processImage(rectify(img_cv->image));
+  // rectify and run detection (pair<vector<apriltag_pose_t>, cv::Mat>)
+  auto april_obj =  det.processImage(rectify(img_cv->image));
 
   geometry_msgs::PoseStamped pose_msg;
   pose_pub.publish(pose_msg);

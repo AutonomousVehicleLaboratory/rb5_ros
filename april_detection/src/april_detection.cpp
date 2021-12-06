@@ -1,5 +1,6 @@
 #include "april_detection.h"
 
+
 AprilDetection::AprilDetection(){
 
   a_detector = apriltag_detector_create();
@@ -29,7 +30,7 @@ AprilDetection::~AprilDetection(){
   return;
 }
 
-cv::Mat AprilDetection::processImage(cv::Mat image){
+pair<vector<apriltag_pose_t>, cv::Mat> AprilDetection::processImage(cv::Mat image){
 
   cv::Mat image_gray; 
   cv::cvtColor(image, image_gray, cv::COLOR_BGR2GRAY);
@@ -45,6 +46,7 @@ cv::Mat AprilDetection::processImage(cv::Mat image){
 
   apriltag_detection_t *det;
   apriltag_detection_info_t tag_info; 
+  vector<apriltag_pose_t> poses;
 
   tag_info.tagsize = 0.159;
   tag_info.fx = 663.57507; 
@@ -60,6 +62,8 @@ cv::Mat AprilDetection::processImage(cv::Mat image){
 
     // estimate pose 
     estimate_tag_pose(&tag_info, &pose);
+    poses.push_back(pose);
+    /*
     std::cout << "R: "; 
     for (int i=0; i<9; i++){
       std::cout << pose.R->data[i] << " ";
@@ -70,9 +74,9 @@ cv::Mat AprilDetection::processImage(cv::Mat image){
 	    std::cout << pose.t->data[i];
     }
     std::cout << std::endl;
-
+    */
   }
   
-  return image;
+  return make_pair(poses, image);
 
 }
