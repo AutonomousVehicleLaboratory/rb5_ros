@@ -30,7 +30,7 @@ AprilDetection::~AprilDetection(){
   return;
 }
 
-pair<vector<apriltag_pose_t>, cv::Mat> AprilDetection::processImage(cv::Mat image){
+tuple<vector<apriltag_pose_t>, vector<int>, cv::Mat> AprilDetection::processImage(cv::Mat image){
 
   cv::Mat image_gray; 
   cv::cvtColor(image, image_gray, cv::COLOR_BGR2GRAY);
@@ -47,6 +47,7 @@ pair<vector<apriltag_pose_t>, cv::Mat> AprilDetection::processImage(cv::Mat imag
   apriltag_detection_t *det;
   apriltag_detection_info_t tag_info; 
   vector<apriltag_pose_t> poses;
+  vector<int> ids;
 
   tag_info.tagsize = 0.159;
   tag_info.fx = 663.57507; 
@@ -55,28 +56,18 @@ pair<vector<apriltag_pose_t>, cv::Mat> AprilDetection::processImage(cv::Mat imag
   tag_info.cy = 539.54574;
 
   for (int i=0; i<zarray_size(detections); i++){
+
     zarray_get(detections, i, &det);
-    std::cout << "Tag detected: " << det->id << std::endl; 
     tag_info.det = det;
     apriltag_pose_t pose;
 
-    // estimate pose 
+    // estimate SE(3) pose 
     estimate_tag_pose(&tag_info, &pose);
     poses.push_back(pose);
-    /*
-    std::cout << "R: "; 
-    for (int i=0; i<9; i++){
-      std::cout << pose.R->data[i] << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "t: " << std::endl; 
-    for (int i=0; i<3; i++){
-	    std::cout << pose.t->data[i];
-    }
-    std::cout << std::endl;
-    */
+    ids.push_back(det->id);
+
   }
   
-  return make_pair(poses, image);
+  return make_tuple(poses, ids, image);
 
 }

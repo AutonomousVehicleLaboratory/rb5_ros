@@ -35,7 +35,7 @@ cv::Mat rectify(const cv::Mat image){
   return image_rect;
 }
 
-tf::Transform retrieveTransform(vector<apriltag_pose_t> poses){
+void publishTransforms(vector<apriltag_pose_t> poses, vector<int> ids){
   tf::Quaternion q;
   tf::Matrix3x3 so3_mat;
   tf::Transform tf;
@@ -56,28 +56,25 @@ tf::Transform retrieveTransform(vector<apriltag_pose_t> poses){
 
     // orientation - q
     so3_mat.getRPY(roll, pitch, yaw); // so3 to RPY
-    cout << "Roll: " << roll << " Pitch: " << pitch << " Yaw: " << yaw << endl;
-    cout << "t: " << poses[i].t->data[0] << " " << poses[i].t->data[1] << " " << poses[i].t->data[2] << endl;
     q.setRPY(roll, pitch, yaw);
 
     tf.setRotation(q);
-    //br.sendTransform();
-    
+    string marker_name = "marker_" + to_string(ids[i]);
+    br.sendTransform(tf::StampedTransform(tf, ros::Time::now(), "camera", marker_name));
+    ROS_INFO("Transformation published for marker.");
   }
   
-
-  return tf;
 }
 
 
 void imageCallback(const sensor_msgs::Image::ConstPtr& msg){
-  ROS_INFO("image received");
+  
   cv_bridge::CvImagePtr img_cv = cv_bridge::toCvCopy(msg);
 
   // rectify and run detection (pair<vector<apriltag_pose_t>, cv::Mat>)
   auto april_obj =  det.processImage(rectify(img_cv->image));
 
-  retrieveTransform(april_obj.first);
+  publishTransforms(get<0>(april_obj), get<1>(april_obj));
   geometry_msgs::PoseStamped pose_msg;
   pose_pub.publish(pose_msg);
 }

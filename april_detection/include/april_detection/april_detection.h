@@ -15,7 +15,7 @@ class AprilDetection{
     ~AprilDetection();
 
     // process input image
-    pair<vector<apriltag_pose_t>, cv::Mat> processImage(cv::Mat image);
+    tuple<vector<apriltag_pose_t>, vector<int>, cv::Mat> processImage(cv::Mat image);
 
     // variables
     apriltag_detection_info_t camera_params;
