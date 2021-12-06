@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(apriltag REQUIRED)
+find_package(OpenCV REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -127,6 +128,7 @@ catkin_package(
 include_directories(
 # include
   ${CMAKE_CURRENT_SOURCE_DIR}/include/april_detection
+  ${OpenCV_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -159,6 +161,7 @@ add_executable(${PROJECT_NAME}_node src/april_detection_node.cpp src/april_detec
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   apriltag::apriltag
+  ${OpenCV_LIBRARIES}
 )
 
 #############

@@ -1,7 +1,8 @@
 #include <ros/ros.h>
 #include <ros/console.h>
-#include <cv_bridge/cv_bridge.h>
 #include <opencv2/opencv.hpp>
+#include <cv_bridge/cv_bridge.h>
+
 
 #include "april_detection.h"
 #include "sensor_msgs/Image.h"
@@ -13,20 +14,20 @@ AprilDetection det;
 
 double distortion_coeff[] = {0.022327, 
                              -0.019742, 
-			     -0.000961, 
-			     0.000625, 
-			     0.000000};
+                            -0.000961, 
+                            0.000625, 
+                            0.000000};
 double intrinsics[] = {691.01615,    0.     ,  954.51,
                        0.     ,  690.10114,  540.77467,
                        0.     ,    0.     ,    1.};
 
-cv::Mat d(cv::Size(1, 5), CV_64FC1, distortion_coeff);
-cv::Mat K(cv::Size(3, 3), CV_64FC1, intrinsics);
+const cv::Mat d(cv::Size(1, 5), CV_64FC1, distortion_coeff);
+const cv::Mat K(cv::Size(3, 3), CV_64FC1, intrinsics);
 
 cv::Mat rectify(const cv::Mat image){
   cv::Mat image_rect = image.clone();
-  //cv::Mat new_K = cv::getOptimalNewCameraMatrix(K, d, image.size(), 1.0); 
-  cv::undistort(image, image_rect, K, d, K); 
+  const cv::Mat new_K = cv::getOptimalNewCameraMatrix(K, d, image.size(), 1.0); 
+  cv::undistort(image, image_rect, K, d, new_K); 
 
   return image_rect;
 }
