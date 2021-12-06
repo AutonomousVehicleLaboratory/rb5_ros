@@ -14,6 +14,7 @@ ros::Publisher pose_pub;
 ros::Subscriber image_sub;
 AprilDetection det;
 
+
 double distortion_coeff[] = {0.022327, 
                              -0.019742, 
                             -0.000961, 
@@ -38,6 +39,7 @@ tf::Transform retrieveTransform(vector<apriltag_pose_t> poses){
   tf::Quaternion q;
   tf::Matrix3x3 so3_mat;
   tf::Transform tf;
+  static tf::TransformBroadcaster br;
 
   for (int i=0; i<poses.size(); i++){
 
@@ -53,9 +55,14 @@ tf::Transform retrieveTransform(vector<apriltag_pose_t> poses){
     double roll, pitch, yaw; 
 
     // orientation - q
-    so3_mat.setRPY(roll, pitch, yaw);
+    so3_mat.getRPY(roll, pitch, yaw); // so3 to RPY
     cout << "Roll: " << roll << " Pitch: " << pitch << " Yaw: " << yaw << endl;
-                  
+    cout << "t: " << poses[i].t->data[0] << " " << poses[i].t->data[1] << " " << poses[i].t->data[2] << endl;
+    q.setRPY(roll, pitch, yaw);
+
+    tf.setRotation(q);
+    //br.sendTransform();
+    
   }
   
 
@@ -70,6 +77,7 @@ void imageCallback(const sensor_msgs::Image::ConstPtr& msg){
   // rectify and run detection (pair<vector<apriltag_pose_t>, cv::Mat>)
   auto april_obj =  det.processImage(rectify(img_cv->image));
 
+  retrieveTransform(april_obj.first);
   geometry_msgs::PoseStamped pose_msg;
   pose_pub.publish(pose_msg);
 }

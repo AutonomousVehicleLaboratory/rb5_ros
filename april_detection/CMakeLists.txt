@@ -10,6 +10,7 @@ add_compile_options(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+  tf
   std_msgs
   sensor_msgs
   cv_bridge
