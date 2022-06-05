@@ -74,7 +74,7 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
       sensor_msgs::CompressedImage cam_compress_msg;
       cam_compress_msg.header.stamp = header.stamp;
       std::vector<int> p;
-      p.push_back(CV_IMWRITE_JPEG_QUALITY);
+      p.push_back(cv::IMWRITE_JPEG_QUALITY);
       p.push_back(90);
       
       cv::Mat frame_bgr = cv::Mat::zeros(width, height, CV_8UC3);

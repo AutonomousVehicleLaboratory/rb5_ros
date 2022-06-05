@@ -175,7 +175,7 @@ target_link_libraries(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} ${GST_APP_LIBRARIES} ${GST_VIDEO_LIBRARIES})
 
-target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/libfastcv.a -pthread -ldl) 
+# target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/libfastcv.a -pthread -ldl) 
 
 #############
 ## Install ##
