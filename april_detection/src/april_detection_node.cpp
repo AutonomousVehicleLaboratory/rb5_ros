@@ -6,7 +6,8 @@
 
 #include "april_detection.h"
 #include "sensor_msgs/Image.h"
-#include "geometry_msgs/PoseStamped.h"
+#include "geometry_msgs/Pose.h"
+#include "geometry_msgs/PoseArray.h"
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
 
@@ -35,11 +36,13 @@ cv::Mat rectify(const cv::Mat image){
   return image_rect;
 }
 
-void publishTransforms(vector<apriltag_pose_t> poses, vector<int> ids){
+void publishTransforms(vector<apriltag_pose_t> poses, vector<int> ids, std_msgs::Header header){
   tf::Quaternion q;
   tf::Matrix3x3 so3_mat;
   tf::Transform tf;
   static tf::TransformBroadcaster br;
+  geometry_msgs::PoseArray pose_array_msg;
+  pose_array_msg.header = header;
 
   for (int i=0; i<poses.size(); i++){
 
@@ -62,21 +65,30 @@ void publishTransforms(vector<apriltag_pose_t> poses, vector<int> ids){
     string marker_name = "marker_" + to_string(ids[i]);
     br.sendTransform(tf::StampedTransform(tf, ros::Time::now(), "camera", marker_name));
     ROS_INFO("Transformation published for marker.");
+    
+    geometry_msgs::Pose pose;
+    pose.position.x = poses[i].t->data[0];
+    pose.position.y = poses[i].t->data[1];
+    pose.position.z = poses[i].t->data[2];
+    
+    tf::quaternionTFToMsg(q, pose.orientation);
+    pose_array_msg.poses.push_back(pose);
   }
-  
+
+  pose_pub.publish(pose_array_msg);
 }
 
 
 void imageCallback(const sensor_msgs::Image::ConstPtr& msg){
   
   cv_bridge::CvImagePtr img_cv = cv_bridge::toCvCopy(msg);
+  std_msgs::Header header = msg->header;
 
   // rectify and run detection (pair<vector<apriltag_pose_t>, cv::Mat>)
   auto april_obj =  det.processImage(rectify(img_cv->image));
 
-  publishTransforms(get<0>(april_obj), get<1>(april_obj));
-  geometry_msgs::PoseStamped pose_msg;
-  pose_pub.publish(pose_msg);
+  publishTransforms(get<0>(april_obj), get<1>(april_obj), header);
+
 }
 
 int main(int argc, char *argv[]){
@@ -84,7 +96,7 @@ int main(int argc, char *argv[]){
   ros::NodeHandle n;
   ros::NodeHandle private_nh("~");
 
-  pose_pub = n.advertise<geometry_msgs::PoseStamped>("/april_poses", 10); 
+  pose_pub = n.advertise<geometry_msgs::PoseArray>("/april_poses", 10); 
   image_sub = n.subscribe("/camera_0", 1, imageCallback);
   
   ros::spin();
