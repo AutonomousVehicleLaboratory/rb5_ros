@@ -36,7 +36,7 @@ class MegaPiControllerNode:
             self.v_max -= 10
 
         if self.verbose:
-            print('v_max:', self.vmax, 'v_straight:', v_straight, 'v_rotate:', v_rotate, 'v_slide', v_slide)
+            print('v_max:', self.v_max, 'v_straight:', v_straight, 'v_rotate:', v_rotate, 'v_slide', v_slide)
 
         if abs(joy_cmd.axes[2]) <= 0.1:
             if abs(joy_cmd.axes[0]) <= 0.1 and abs(joy_cmd.axes[1]) <= 0.1:
