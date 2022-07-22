@@ -15,7 +15,7 @@ class MegaPiControllerNode:
         self.reset_v_max()
         self.verbose = verbose
         self.debug = debug
-        self.state = 'run'
+        self.state = "run"
     
 
     def reset_v_max(self):
@@ -29,11 +29,11 @@ class MegaPiControllerNode:
             print('buttons:', joy_cmd.buttons)
             print('axes:', [round(axe,2) for axe in joy_cmd.axes])
         if joy_cmd.buttons[4] == 1:
-            if self.state == 'run':
-                self.state = 'stop'
-            elif self.state == 'stop':
-                self.state = 'run'
-        if self.state == 'stop':
+            if self.state == "run":
+                self.state = "stop"
+            elif self.state == "stop":
+                self.state = "run"
+        if self.state == "stop":
             print('Vehicle in the stop state.')
             return
         
@@ -63,10 +63,10 @@ class MegaPiControllerNode:
             self.v_max_rotate -= 10
 
         if self.verbose:
-            print('state:', self.state,
-                  'v_straight:', repr(int(round(v_straight, 2))) + '/' + repr(self.v_max_straight), 
-                  'v_slide', repr(int(round(v_slide, 2))) + '/' + repr(self.v_max_slide),
-                  'v_rotate:', repr(int(round(v_rotate, 2))) + '/' + repr(self.v_max_rotate))
+            print('state: ' + self.state +
+                  ' v_straight: ' + repr(int(round(v_straight, 2))) + '/' + repr(self.v_max_straight) +
+                  ' v_slide: '+ repr(int(round(v_slide, 2))) + '/' + repr(self.v_max_slide) +
+                  ' v_rotate: ' + repr(int(round(v_rotate, 2))) + '/' + repr(self.v_max_rotate))
 
         if abs(joy_cmd.axes[2]) <= 0.1:
             if abs(joy_cmd.axes[0]) <= 0.1 and abs(joy_cmd.axes[1]) <= 0.1:

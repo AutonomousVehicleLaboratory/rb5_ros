@@ -24,16 +24,19 @@ class MegaPiController:
     
     def printConfiguration(self):
         print('MegaPiController:')
-        print("Communication Port:", self.port)
-        print("Motor ports: MFR:", MFR, "MBL:", MBL, "MBR:", MBR, "MFL:", MFL)
+        print("Communication Port:" + repr(self.port))
+        print("Motor ports: MFR: " + repr(MFR) +
+              " MBL: " + repr(MBL) + 
+              " MBR: " + repr(MBR) + 
+              " MFL: " + repr(MFL))
 
 
     def setFourMotors(self, vfl=0, vfr=0, vbl=0, vbr=0):
         if self.verbose:
-            print("Set Motors: vfl:", int(round(vfl,0)), 
-                  "vfr:", int(round(vfr,0)), 
-                  "vbl:", int(round(vbl,0)), 
-                  "vbr:", int(round(vbr,0)))
+            print("Set Motors: vfl: " + repr(int(round(vfl,0))) + 
+                  " vfr: " + repr(int(round(vfr,0))) +
+                  " vbl: " + repr(int(round(vbl,0))) +
+                  " vbr: " + repr(int(round(vbr,0))))
         self.bot.motorRun(self.mfl,vfl)
         self.bot.motorRun(self.mfr,vfr)
         self.bot.motorRun(self.mbl,vbl)
