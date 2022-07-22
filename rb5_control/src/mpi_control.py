@@ -30,7 +30,10 @@ class MegaPiController:
 
     def setFourMotors(self, vfl=0, vfr=0, vbl=0, vbr=0):
         if self.verbose:
-            print("Set Motors: vfl:", vfl, "vfr:", vfr, "vbl:", vbl, "vbr:", vbr)
+            print("Set Motors: vfl:", int(round(vfl,0)), 
+                  "vfr:", int(round(vfr,0)), 
+                  "vbl:", int(round(vbl,0)), 
+                  "vbr:", int(round(vbr,0)))
         self.bot.motorRun(self.mfl,vfl)
         self.bot.motorRun(self.mfr,vfr)
         self.bot.motorRun(self.mbl,vbl)
