@@ -7,36 +7,66 @@ from mpi_control import MegaPiController
 
 
 class MegaPiControllerNode:
-    def __init__(self, verbose=True):
+    def __init__(self, verbose=True, debug=False):
         self.mpi_ctrl = MegaPiController(port='/dev/ttyUSB0', verbose=verbose)
-        self.v_default = 50
-        self.v_slide = self.v_default
-        self.v_straight = self.v_default
-        self.v_rotate = self.v_default
-        self.v_max = 100
+        self.v_max_default_straight = 100
+        self.v_max_default_slide = 100
+        self.v_max_default_rotate = 50
+        self.reset_v_max()
         self.verbose = verbose
+        self.debug = debug
+        self.state = 'run'
+    
+
+    def reset_v_max(self):
+        self.v_max_straight = self.v_max_default_straight
+        self.v_max_slide = self.v_max_default_slide
+        self.v_max_rotate = self.v_max_default_rotate
 
 
     def joy_callback(self, joy_cmd):
-        if self.verbose:
+        if self.debug:
             print('buttons:', joy_cmd.buttons)
-            print('axes:', joy_cmd.axes)
+            print('axes:', [round(axe,2) for axe in joy_cmd.axes])
+        if joy_cmd.buttons[4] == 1:
+            if self.state == 'run':
+                self.state = 'stop'
+            elif self.state == 'stop':
+                self.state = 'run'
+        if self.state == 'stop':
+            print('Vehicle in the stop state.')
+            return
+        
+        if joy_cmd.buttons[5] == 1:
+            print('Reset max speed')
+            self.reset_v_max()
 
         v_straight = 0
         v_slide = 0
         v_rotate = 0
 
-        v_slide = self.v_max * joy_cmd.axes[0]
-        v_straight = self.v_max * joy_cmd.axes[1]
-        v_rotate = self.v_max * joy_cmd.axes[2]
+        v_slide = self.v_max_slide * joy_cmd.axes[0]
+        v_straight = self.v_max_straight * joy_cmd.axes[1]
+        v_rotate = self.v_max_rotate * joy_cmd.axes[2]
 
-        if joy_cmd.axes[3] > 0:
-            self.v_max += 10
-        elif joy_cmd.axes[3] < 0:
-            self.v_max -= 10
+        if joy_cmd.axes[4] > 0:
+            self.v_max_slide -= 10
+        elif joy_cmd.axes[4] < 0:
+            self.v_max_slide += 10
+        if joy_cmd.axes[5] > 0:
+            self.v_max_straight += 10
+        elif joy_cmd.axes[5] < 0:
+            self.v_max_straight -= 10
+        if joy_cmd.buttons[1] == 1:
+            self.v_max_rotate += 10
+        elif joy_cmd.buttons[3] == 1:
+            self.v_max_rotate -= 10
 
         if self.verbose:
-            print('v_max:', self.vmax, 'v_straight:', v_straight, 'v_rotate:', v_rotate, 'v_slide', v_slide)
+            print('state:', self.state,
+                  'v_straight:', repr(int(round(v_straight, 2))) + '/' + repr(self.v_max_straight), 
+                  'v_slide', repr(int(round(v_slide, 2))) + '/' + repr(self.v_max_slide),
+                  'v_rotate:', repr(int(round(v_rotate, 2))) + '/' + repr(self.v_max_rotate))
 
         if abs(joy_cmd.axes[2]) <= 0.1:
             if abs(joy_cmd.axes[0]) <= 0.1 and abs(joy_cmd.axes[1]) <= 0.1:
