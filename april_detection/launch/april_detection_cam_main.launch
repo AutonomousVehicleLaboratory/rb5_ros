@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find rb5_vision)/launch/rb_camera_main_ocv.launch" />
+
+  <node pkg="april_detection" type="april_detection_node" name="april_detection_node" output="screen" />
+</launch>

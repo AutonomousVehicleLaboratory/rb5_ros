@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="joy" type="joy_node" name="joy_node" />
+  <node pkg="rb5_control" type="mpi_control_node.py" name="mpi_control_node" />
+</launch>
