@@ -1,4 +1,3 @@
-from numpy import vsplit
 from megapi import MegaPi
 
 
@@ -11,15 +10,15 @@ MFL = 11    # port for motor front left
 class MegaPiController:
     def __init__(self, port='/dev/ttyUSB0', verbose=True):
         self.port = port
+        self.verbose = verbose
+        if verbose:
+            self.printConfiguration()
         self.bot = MegaPi()
         self.bot.start(port=port)
         self.mfr = MFR  # port for motor front right
         self.mbl = MBL  # port for motor back left
         self.mbr = MBR  # port for motor back right
-        self.mfl = MFL  # port for motor front left
-        self.verbose = verbose
-        if verbose:
-            self.printConfiguration()
+        self.mfl = MFL  # port for motor front left   
 
     
     def printConfiguration(self):
@@ -76,3 +75,21 @@ class MegaPiController:
             v_rotate-v_straight-v_slide,
             v_rotate+v_straight-v_slide
         )
+    
+    def close(self):
+        self.bot.close()
+        self.bot.exit()
+
+
+if __name__ == "__main__":
+    import time
+    mpi_ctrl = MegaPiController(port='/dev/ttyUSB0', verbose=True)
+    mpi_ctrl.carStraight(30)
+    time.sleep(1)
+    mpi_ctrl.carSlide(30)
+    time.sleep(1)
+    mpi_ctrl.carRotate(30)
+    time.sleep(1)
+    mpi_ctrl.carStop()
+    mpi_ctrl.close()
+    exit(0)
