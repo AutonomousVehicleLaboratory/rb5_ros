@@ -1,3 +1,7 @@
+""" read keyboard command 
+Ref: https://github.com/ros-teleop/teleop_twist_keyboard/blob/master/teleop_twist_keyboard.py
+"""
+
 import sys
 from select import select
 
