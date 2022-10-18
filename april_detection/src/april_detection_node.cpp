@@ -115,7 +115,7 @@ int main(int argc, char *argv[]){
   ros::NodeHandle private_nh("~");
 
   pose_pub = n.advertise<geometry_msgs::PoseArray>("/april_poses", 10); 
-  apriltag_pub = n.advertise<april_detection::AprilTagDetectionArray>("/ariltag_detection_array", 10);
+  apriltag_pub = n.advertise<april_detection::AprilTagDetectionArray>("/apriltag_detection_array", 10);
   image_sub = n.subscribe("/camera_0", 1, imageCallback);
   
   ros::spin();
