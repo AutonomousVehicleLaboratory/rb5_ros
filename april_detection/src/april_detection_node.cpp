@@ -19,13 +19,14 @@ ros::Subscriber image_sub;
 AprilDetection det;
 
 
-double distortion_coeff[] = {0.022327, 
-                             -0.019742, 
-                            -0.000961, 
-                            0.000625, 
-                            0.000000};
-double intrinsics[] = {691.01615,    0.     ,  954.51,
-                       0.     ,  690.10114,  540.77467,
+double distortion_coeff[] = {
+  -0.004690, 
+  -0.010306, 
+  -0.000044, 
+  0.000303, 
+  0.000000};
+double intrinsics[] = {671.42099,    0.     ,  969.0114,
+                       0.     ,  670.67143,  555.81758,
                        0.     ,    0.     ,    1.};
 
 const cv::Mat d(cv::Size(1, 5), CV_64FC1, distortion_coeff);
@@ -117,6 +118,11 @@ int main(int argc, char *argv[]){
   pose_pub = n.advertise<geometry_msgs::PoseArray>("/april_poses", 10); 
   apriltag_pub = n.advertise<april_detection::AprilTagDetectionArray>("/apriltag_detection_array", 10);
   image_sub = n.subscribe("/camera_0", 1, imageCallback);
+  
+  // Set info for pose estimation
+  // details from: https://github.com/AprilRobotics/apriltag/wiki/AprilTag-User-Guide#pose-estimation
+  double tagSize = 0.159;
+  det.setInfo(tagSize, intrinsics[0], intrinsics[4], intrinsics[2], intrinsics[5]);
   
   ros::spin();
   return 0;
