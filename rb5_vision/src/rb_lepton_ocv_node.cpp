@@ -126,19 +126,19 @@ RbCamera::RbCamera(
   std::cout << "output caps: " << output_caps << std::endl;
 
   data.source        = gst_element_factory_make("v4l2src", "source");
-  // data.capsfiltersrc = gst_element_factory_make("capsfilter", "capsfiltersrc");
+  data.capsfiltersrc = gst_element_factory_make("capsfilter", "capsfiltersrc");
   data.convert        = gst_element_factory_make ("videoconvert", "convert");
-  // data.capsfilterapp = gst_element_factory_make("capsfilter", "capsfilterapp");
-  data.appsink       = gst_element_factory_make ("xvimagesink", "sink");
+  data.capsfilterapp = gst_element_factory_make("capsfilter", "capsfilterapp");
+  data.appsink       = gst_element_factory_make ("appsink", "sink");
   data.pipeline      = gst_pipeline_new("rb5-lepton");
 
-  if (!data.pipeline || !data.convert || !data.source || !data.appsink) {// ||
-    //  !data.capsfiltersrc || !data.capsfilterapp ) {
+  if (!data.pipeline || !data.convert || !data.source || !data.appsink ||
+     !data.capsfiltersrc || !data.capsfilterapp ) {
     g_printerr ("Not all elements could be created.\n");
     if (!data.pipeline) {g_printerr ("pipeline could not be created!\n");}
-    // if (!data.capsfiltersrc) {g_printerr ("capsfiltersrc could not be created!\n");}
+    if (!data.capsfiltersrc) {g_printerr ("capsfiltersrc could not be created!\n");}
     if (!data.convert) {g_printerr ("convert could not be created!\n");}
-    // if (!data.capsfilterapp) {g_printerr ("capsfilterapp could not be created!\n");}
+    if (!data.capsfilterapp) {g_printerr ("capsfilterapp could not be created!\n");}
     if (!data.appsink) {g_printerr ("appsink could not be created!\n");}
     if (!data.source) {g_printerr ("source could not be created!\n");}
     return;
@@ -150,10 +150,6 @@ RbCamera::RbCamera(
     g_printerr ("Elements could not be linked.\n");
     gst_object_unref (data.pipeline);
     return;
-  }
-
-  if (camera_id == 0 or camera_id == 1) {
-    g_object_set (G_OBJECT(data.source), "camera", camera_id, nullptr);
   }
 
   g_object_set(G_OBJECT(data.capsfiltersrc), "caps",
@@ -172,7 +168,7 @@ RbCamera::~RbCamera(){
 
 void RbCamera::init(){
   g_object_set(data.appsink, "emit-signals", TRUE, nullptr);
-  g_object_set(G_OBJECT(data.source), "camera", camera_id, NULL);
+  g_object_set(G_OBJECT(data.source), "device", "/dev/video2", NULL);
   g_signal_connect(data.appsink, "new-sample", G_CALLBACK(processData), &data);
 
   // play
