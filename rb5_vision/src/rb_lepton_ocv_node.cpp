@@ -13,6 +13,7 @@ static bool _image_compress;
 std::string _input_format;
 std::string _output_format;
 std::string _topic_name;
+std::string _device_path;
 
 ros::Publisher cam_pub, cam_compress_pub;
 
@@ -115,6 +116,7 @@ RbCamera::RbCamera(
   input_format = input_format_;
   output_format = output_format_;
 
+  _device_path = "/dev/video" + std::to_string(camera_id);
   std::string input_caps = "video/x-raw,format=" + input_format + 
                            ",framerate=" + std::to_string(frame_rate) + "/1" + 
                            ",width=" + std::to_string(width) + 
@@ -122,6 +124,7 @@ RbCamera::RbCamera(
   
   std::string output_caps = "video/x-raw,format=" + output_format;
 
+  std::cout << "device path: " << _device_path << std::endl;
   std::cout << "lepton input caps: " << input_caps << std::endl;
   std::cout << "output caps: " << output_caps << std::endl;
 
@@ -168,7 +171,7 @@ RbCamera::~RbCamera(){
 
 void RbCamera::init(){
   g_object_set(data.appsink, "emit-signals", TRUE, nullptr);
-  g_object_set(G_OBJECT(data.source), "device", "/dev/video2", NULL);
+  g_object_set(G_OBJECT(data.source), "device", _device_path.c_str(), NULL);
   g_signal_connect(data.appsink, "new-sample", G_CALLBACK(processData), &data);
 
   // play
