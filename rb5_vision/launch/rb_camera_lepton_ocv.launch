@@ -1,5 +1,5 @@
 <launch>
-  <arg name="camera_id" default="6" /> <!-- 0 for main camera, 1 for tracking camera and 2 for webcames. -->
+  <arg name="camera_id" default="8" /> <!-- 0 for main camera, 1 for tracking camera and 2 for webcames. -->
   <arg name="frame_rate" default="9" />
   <arg name="width" default="160" />
   <arg name="height" default="120" />
@@ -18,4 +18,5 @@
     <param name="topic_name" value="$(arg topic_name_prefix)_$(arg camera_id)" />
     <param name="image_compress" value="$(arg image_compress)" />
   </node>
+
 </launch>
