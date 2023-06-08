@@ -17,7 +17,7 @@
   
   <arg name="topic_name_prefix" default="camera" />
 
-  <node pkg="rb5_vision" type="rb5_vision" name="rb5_vision_$(arg camera_id0)" output="screen">
+  <node pkg="rb5_vision" type="rb5_vision" name="rb5_vision_$(arg camera_id0)"  respawn="true" output="screen">
     <param name="camera_id" value="$(arg camera_id0)" />
     <param name="frame_rate" value="$(arg frame_rate0)" />
     <param name="width" value="$(arg width0)" />
@@ -28,7 +28,7 @@
     <param name="image_compress" value="$(arg image_compress0)" />
   </node>
 
-  <node pkg="rb5_vision" type="rb5_vision" name="rb5_vision_$(arg camera_id1)" output="screen">
+  <node pkg="rb5_vision" type="rb5_vision" name="rb5_vision_$(arg camera_id1)"  respawn="true" output="screen">
     <param name="camera_id" value="$(arg camera_id1)" />
     <param name="frame_rate" value="$(arg frame_rate1)" />
     <param name="width" value="$(arg width1)" />
