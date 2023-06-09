@@ -20,7 +20,7 @@ ros::Publisher cam_pub, cam_compress_pub;
 /* Callback for appsink to parse the video stream and publish images. */
 static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data){
 
-  double t1 = ros::Time::now().toSec();
+  // double t1 = ros::Time::now().toSec();
   GstSample *sample;
   GstBuffer *buffer;
   GstMapInfo map_info;
@@ -52,7 +52,7 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
       return GST_FLOW_ERROR;
     }
 
-    double t2 = ros::Time::now().toSec();
+    // double t2 = ros::Time::now().toSec();
     timeval current_time;
     gettimeofday(&current_time, 0);
     // std::cout << current_time.tv_sec << "." << current_time.tv_usec << std::endl;
@@ -62,11 +62,11 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
     cv::Mat frame_rgb(cv::Size(width, height), CV_8UC3, (char*)map_info.data, cv::Mat::AUTO_STEP);
     // cv::cvtColor(frame_rgb, frame, cv::COLOR_RGB2);
 
-    double t3 = ros::Time::now().toSec();
+    // double t3 = ros::Time::now().toSec();
     // Prepare ROS message.
     cv_bridge::CvImage bridge;
 
-    double t4 = ros::Time::now().toSec();
+    // double t4 = ros::Time::now().toSec();
     // Publish camera image
     sensor_msgs::Image cam_msg;
     std_msgs::Header header;
@@ -76,7 +76,7 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
     bridge.toImageMsg(cam_msg);
     cam_pub.publish(cam_msg);
     
-    double t5 = ros::Time::now().toSec();
+    // double t5 = ros::Time::now().toSec();
     // Publish camera frame 
     if (_image_compress) {
       sensor_msgs::CompressedImage cam_compress_msg;
@@ -92,14 +92,14 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
       cam_compress_pub.publish(cam_compress_msg);
     }
 
-    double t6 = ros::Time::now().toSec();
-    std::cout << std::fixed << "cam" << _camera_id ;
-    std::cout << "t1: " << t1 << std::endl;
-    std::cout << "t2: " << t2 << std::endl;
-    std::cout << "t3: " << t3 << std::endl;
-    std::cout << "t4: " << t4 << std::endl;
-    std::cout << "t5: " << t5 << std::endl;
-    std::cout << "t6: " << t6 << std::endl;
+    // double t6 = ros::Time::now().toSec();
+    // std::cout << std::fixed << "cam" << _camera_id ;
+    // std::cout << "t1: " << t1 << std::endl;
+    // std::cout << "t2: " << t2 << std::endl;
+    // std::cout << "t3: " << t3 << std::endl;
+    // std::cout << "t4: " << t4 << std::endl;
+    // std::cout << "t5: " << t5 << std::endl;
+    // std::cout << "t6: " << t6 << std::endl;
     // free resources
     gst_buffer_unmap(buffer, &map_info);
     gst_sample_unref(sample);

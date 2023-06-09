@@ -18,7 +18,8 @@
   <arg name="output_format1" default="RGB" /> <!-- format for the output stream -->
   <arg name="image_compress1" default="true" /> 
   
-  <arg name="topic_name_prefix" default="camera" />
+  <arg name="topic_name0" default="rb5_main/image_raw" />
+  <arg name="topic_name1" default="rb5_side/image_raw" />
 
   <node pkg="rb5_vision" type="rb5_vision" name="rb5_vision_$(arg camera_id0)" respawn="true" output="screen">
     <param name="camera_id" value="$(arg camera_id0)" />
@@ -27,7 +28,7 @@
     <param name="height" value="$(arg height0)" />
     <param name="input_format" value="$(arg input_format0)" />
     <param name="output_format" value="$(arg output_format0)" />
-    <param name="topic_name" value="$(arg topic_name_prefix)_$(arg camera_id0)" />
+    <param name="topic_name" value="$(arg topic_name0)" />
     <param name="image_compress" value="$(arg image_compress0)" />
   </node>
 
@@ -38,7 +39,7 @@
     <param name="height" value="$(arg height1)" />
     <param name="input_format" value="$(arg input_format1)" />
     <param name="output_format" value="$(arg output_format1)" />
-    <param name="topic_name" value="$(arg topic_name_prefix)_$(arg camera_id1)" />
+    <param name="topic_name" value="$(arg topic_name1)" />
     <param name="image_compress" value="$(arg image_compress1)" />
   </node>
 

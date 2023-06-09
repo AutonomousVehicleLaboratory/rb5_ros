@@ -5,7 +5,7 @@
   <arg name="height" default="120" />
   <arg name="input_format" default="GRAY16_LE" /> <!-- format for the input stream from camera UYVY for color GRAY16_LE for gray -->
   <arg name="output_format" default="GRAY16_LE" /> <!-- format for the output stream -->
-  <arg name="topic_name_prefix" default="camera" />
+  <arg name="topic_name" default="lepton/image_raw" />
   <arg name="image_compress" default="true" /> 
 
   <node pkg="rb5_vision" type="rb_lepton" name="rb_lepton" output="screen">
@@ -15,7 +15,7 @@
     <param name="height" value="$(arg height)" />
     <param name="input_format" value="$(arg input_format)" />
     <param name="output_format" value="$(arg output_format)" />
-    <param name="topic_name" value="$(arg topic_name_prefix)_$(arg camera_id)" />
+    <param name="topic_name" value="$(arg topic_name)" />
     <param name="image_compress" value="$(arg image_compress)" />
   </node>
 
