@@ -57,10 +57,7 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
     // std::cout << current_time.tv_sec << "." << current_time.tv_usec << std::endl;
 
     // Parse data from buffer, depending on the format, conversion might be needed.
-    // cv::Mat frame_rgb = cv::Mat::zeros(width, height, CV_8UC3);
-    cv::Mat frame_rgb(cv::Size(width, height), CV_8UC3, (char*)map_info.data, cv::Mat::AUTO_STEP);
-    // cv::Mat frame_gray16(cv::Size(width, height), CV_16U, (char*)map_info.data, cv::Mat::AUTO_STEP);
-    // cv::cvtColor(frame_rgb, frame, cv::COLOR_RGB2);
+    cv::Mat frame_gray16(cv::Size(width, height), CV_16U, (char*)map_info.data, cv::Mat::AUTO_STEP);
 
     // Prepare ROS message.
     cv_bridge::CvImage bridge;
@@ -70,24 +67,22 @@ static GstFlowReturn processData(GstElement * sink, RbCamera::CustomData * data)
     std_msgs::Header header;
     header.seq = 0;
     header.stamp = ros::Time::now();
-    bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, frame_rgb);
-    // bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO16, frame_gray16);
+    bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO16, frame_gray16);
     bridge.toImageMsg(cam_msg);
     cam_pub.publish(cam_msg);
     
     // Publish camera frame 
     if (_image_compress) {
+      // use png for 16 bit data
       sensor_msgs::CompressedImage cam_compress_msg;
       cam_compress_msg.header.stamp = header.stamp;
-      // cam_compress_msg.format = "jpeg";
-      std::vector<int> p;
-      p.push_back(cv::IMWRITE_JPEG_QUALITY);
-      p.push_back(90);
+      cam_compress_msg.format = "png";
       
-      cv::Mat frame_bgr = cv::Mat::zeros(width, height, CV_8UC3);
-      cv::cvtColor(frame_rgb, frame_bgr, cv::COLOR_RGB2BGR);
-      cv::imencode(".jpg", frame_bgr, cam_compress_msg.data, p);
-      // cv::imencode(".jpg", frame_gray16, cam_compress_msg.data, p);
+      std::vector<int> p;
+      p.push_back(cv::IMWRITE_PNG_COMPRESSION);
+      p.push_back(1);
+      
+      cv::imencode(".png", frame_gray16, cam_compress_msg.data, p); 
       cam_compress_pub.publish(cam_compress_msg);
     }
 

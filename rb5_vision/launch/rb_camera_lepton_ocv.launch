@@ -3,8 +3,8 @@
   <arg name="frame_rate" default="9" />
   <arg name="width" default="160" />
   <arg name="height" default="120" />
-  <arg name="input_format" default="UYVY" /> <!-- format for the input stream from camera -->
-  <arg name="output_format" default="RGB" /> <!-- format for the output stream -->
+  <arg name="input_format" default="GRAY16_LE" /> <!-- format for the input stream from camera UYVY for color GRAY16_LE for gray -->
+  <arg name="output_format" default="GRAY16_LE" /> <!-- format for the output stream -->
   <arg name="topic_name_prefix" default="camera" />
   <arg name="image_compress" default="true" /> 
 
