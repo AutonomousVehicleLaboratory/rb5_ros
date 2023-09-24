@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Copyright 2023, UC San Diego, Contextual Robotics Institute
 
